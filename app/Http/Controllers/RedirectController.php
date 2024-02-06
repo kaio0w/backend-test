@@ -60,19 +60,23 @@ class RedirectController extends Controller
             'query_params' => $request->query(),
             'access_time' => now(),
         ];
-        
+    
         Log::info('Redirect accessed', $logData);
         RedirectLog::create($logData);
-
+    
         // Lógica para fusão de query params e redirecionamento
         $mergedQueryParams = array_merge($redirect->getQueryParams(), $request->query());
-
+    
+        // Adicione os query params à URL de destino
+        $redirectUrl = $redirect->url;
+        if (!empty($mergedQueryParams)) {
+            $redirectUrl .= '?' . http_build_query($mergedQueryParams);
+        }
+    
         // Redirecione para a URL de destino com os query params
-        return redirect()->away($redirect->url . '?' . http_build_query($mergedQueryParams));
-
-        
+        return redirect()->away($redirectUrl);
     }
-
+    
     public function getStats(Redirect $redirect)
     {
         // Lógica para obter estatísticas de acesso
